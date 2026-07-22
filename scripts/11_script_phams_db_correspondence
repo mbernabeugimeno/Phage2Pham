@@ -1,0 +1,30 @@
+#!/bin/bash
+
+#Script of Phage2Pham's pipeline#
+#Author: Mireia Bernabeu Gimeno
+#Date: 06-09-24
+
+cd "$1"/phammseqs_all_protein_to_analyze/pham_fastas
+
+for f in *.faa; do 
+	blastp -query "$f" -db "$2"/phams_fastas_"$3"/phams_db_"$3" -num_threads 4 -max_target_seqs 5 -max_hsps 5 -qcov_hsp_perc 90 -outfmt 5 -out "${f%.*}"_blast_"$3"db_result.o5 ; 
+done
+
+for f in *blast_"$3"db_result.o5; do 
+	grep -f /home/mireia/Escritorio/pipeline_paper/filter_grep "$f" | awk -F "<" '{print $2$3}' | awk -F ">" '{print $1"\t"$2}' | awk -F "/" '{print $1}' | awk -F "\t" '$0~/Iteration_query-def/{print "\n"}{printf $2"\t"}' | sed '/^$/d' > "${f%.*}"_summary_"$3"db.csv ; 
+	#grep -f /home/principal/scripts_mireia/mycophages/filter_grep_o5_output "$f" | awk -F "<" '{print $2$3}' | awk -F ">" '{print $1"\t"$2}' | awk -F "/" '{print $1}' | awk -F "\t" '$0~/Iteration_query-def/{print "\n"}{printf $2"\t"}' | sed '/^$/d' > "${f%.*}"_summary_"$3"db.csv ; 
+done
+
+for f in *_summary_"$3"db.csv; do 
+	awk -F "\t" '{print $1"\t"$2"\t"$3"\t"$4"\t"$10"\t"$11"\t"$17"\t"$18"\t"$24"\t"$25"\t"$31"\t"$32}' "$f" | awk '{printf $1"\t"}{for(i=1;i<=NF;i++) if(i==2 || $i~"genes") printf $i"\t"$(i+1)"\t";print ""}' | awk -F "\t" '{print $1"\t"$2"\t"$4"\t"$5"\t"$6"\t"$7"\t"$8"\t"$9"\t"$10"\t"$11"\t"$12"\t"$13}' > "${f%.*}"2.csv ; 
+done
+
+for f in *_"$3"db2.csv; do echo "$f" ; cat "$f" ; done > all_phams_correspondence_db_"$3".csv
+
+#for each protein, info of first hit ; most prevalent *genes assigned
+awk -F "_" '$0~/csv/{print $1"_"$2}$0!~/csv/{print $0}' all_phams_correspondence_db_"$3".csv | awk -F "\t" '$0~/pham_/{print "new\n"$0}$0!~/pham_/{print $3}' | awk 'BEGIN{RS="new";FS="\n"}NF{pham=$2;delete c;delete first;for(i=3;i<=NF;i++)if($i~/_genes$/){c[$i]++;if(!($i in first))first[$i]=i}max=0;best="";bestpos=1e9;for(g in c)if(c[g]>max||(c[g]==max&&first[g]<bestpos)){max=c[g];best=g;bestpos=first[g]}if(best!="")print pham"\t"best}' > fast_correspondence_db_"$3".csv
+
+rm all_to_fast_db_"$3"_aux.csv
+rm all_to_fast_db_"$3"_aux2.csv
+rm *_summary*.csv
+rm *.o5

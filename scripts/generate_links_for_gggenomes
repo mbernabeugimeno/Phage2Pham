@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#Script of Phage2Pham's pipeline#
+#Author: Mireia Bernabeu Gimeno
+#Date: 06-09-24
+
+path="$1"
+
+for ((f=1; f<=${2}; f++)); do
+	var1=phage"$f"
+	for ((g=1; g<=${2}; g++)); do
+		var2=phage"$g"
+		cd "$path"
+		python3 scripts/pham_link_for_gggenomes.py "$var1""_"mod2.gff "$var2""_"mod2.gff  | awk -F "\t" -v x="$var1" -v y="$var2" '{print x"\t"y"\t100\t100\t0\t1\t"$4"\t"$5"\t"$17"\t"$18"\t5.21e-87\t200"}' > "$var1""_""$var2".o6 
+	done
+	cat "$var1"*o6 > "$var1"_all.o6
+	sort -k7,7n -t$'\t' "$var1"_all.o6 > "$var1"_all_sorted.o6
+done
+
+#for ((f=1; f<=${2}; f++)); do
+#	var1=phage"$f"
+#	for ((g=1; g<=${3}; g++)); do
+#		var2=reference"$g"
+#		cd "$path"
+#		python3 scripts/pham_link_for_gggenomes.py "$var1""_"mod2.gff "$var2""_"mod2.gff  | awk -F "\t" -v x="$var1" -v y="$var2" '{print x"\t"y"\t100\t100\t0\t1\t"$4"\t"$5"\t"$17"\t"$18"\t5.21e-87\t200"}' > "$var1""_""$var2".o6
+#	done
+#	cat "$var1"*o6 > "$var1"_all.o6
+#	sort -k7,7n -t$'\t' "$var1"_all.o6 > "$var1"_all_sorted.o6
+#done
+
+#for ((f=1; f<=${2}; f++)); do
+#	var1=reference"$f"
+#	for ((g=1; g<=${3}; g++)); do
+#		var2=phage"$g"
+#		cd "$path"
+#		python3 scripts/pham_link_for_gggenomes.py "$var1""_"mod2.gff "$var2""_"mod2.gff  | awk -F "\t" -v x="$var1" -v y="$var2" '{print x"\t"y"\t100\t100\t0\t1\t"$4"\t"$5"\t"$17"\t"$18"\t5.21e-87\t200"}' > "$var1""_""$var2".o6
+#	done
+#	cat "$var1"*o6 > "$var1"_all.o6
+#	sort -k7,7n -t$'\t' "$var1"_all.o6 > "$var1"_all_sorted.o6
+#done
+
+shopt -s extglob
+rm -f !(*sorted).o6

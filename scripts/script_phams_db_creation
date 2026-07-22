@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#Script of Phage2Pham's pipeline#
+#Author: Mireia Bernabeu Gimeno
+#Date: 06-09-24
+
+#Download data from phamerator database
+#Create database
+
+#Data to download present at: http://databases.hatfull.org/
+#From the creation of the database: /Actino_Draft/fastas.zip (protein sequences associated to each pham)
+
+wget http://databases.hatfull.org/Actino_Draft/fastas.zip
+
+mv fastas.zip "$1"
+
+unzip "$1"/fastas.zip -d "$1"/phams_fastas_"$2"
+
+cd "$1"/phams_fastas_"$2"/fastas
+
+for f in *.fasta; do
+	awk -v var="${f%.*}" '$0~/>/{print $0" "var}$0!~/>/{print $0}' "$f" >> "$1"/phams_fastas_"$2"/fastas/phams_all_"$2".fa ;
+done
+
+makeblastdb -in "$1"/phams_fastas_"$2"/fastas/phams_all_"$2".fa -dbtype "prot" -out "$1"/phams_fastas_"$2"/phams_db_"$2"
+
+#Directory where database is present for future analysis: "$1"/phams_fastas_"$2"/phams_db_"$2"

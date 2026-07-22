@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#Script of Phage2Pham's pipeline#
+#Author: Mireia Bernabeu Gimeno
+#Date: 21-02-26
+
+cd "$1"/phammseqs_all_protein_to_analyze/pham_fastas
+for f in *.faa ; do
+	pharokka_proteins.py -i "$f" -d "$2" -o "${f%.*}" -t 10  -f --hmm_only -p "${f%.*}"
+	echo "${f%.*}"
+	cat "${f%.*}"/*_summary_output.tsv | awk -F "\t" '$0~/geneCall/{print $4"\t"$5}'
+done > pharokka_summary.csv
+
+awk -F "\t" '$0~/pham_/{print "new\n"$0}$0!~/pham_/{print $0}' pharokka_summary.csv | awk 'BEGIN{RS="new";FS="\n"}NF{pham=$2;delete c;delete first;for(i=3;i<=NF;i++)if(index($i,"\t")){c[$i]++;if(!($i in first))first[$i]=i}max=0;best="";bestpos=1e9;for(g in c)if(c[g]>max||(c[g]==max&&first[g]<bestpos)){max=c[g];best=g;bestpos=first[g]}if(best!="")print pham"\t"best}' > fast_correspondence_pharokka.csv
+
+for f in *.faa ; do 
+	rm -r "${f%.*}"/
+done
+
+#rm pharokka_summary.csv

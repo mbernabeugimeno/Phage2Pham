@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#Script of Phage2Pham's pipeline#
+#Author: Mireia Bernabeu Gimeno
+#Date: 16-07-25
+
+#Execute phamclust
+phamclust "$1"/phammseqs_all_protein_to_analyze/strain_genes.tsv "$1"/phamclust_output
+
+#Generate_summary_doc_of_clusters
+for cluster in "$1"/phamclust_output/cluster_* ; do
+	cluster_number=$(basename "$cluster")
+	awk -v variable="$cluster_number" -F "\t" 'BEGIN{printf variable"\t"}{printf $1"\t"}' "$cluster"/peq_similarity.tsv
+done > "$1"/phamclust_output_summary.csv
+

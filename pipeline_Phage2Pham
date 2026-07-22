@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#Phage2Pham's pipeline#
+#Author: Mireia Bernabeu Gimeno
+#Date: 16-07-25
+
+#Paths
+path_input="/home/mireia/Escritorio/pipeline_paper/all_ok"
+path_db="/home/mireia"
+path_pharokka_db="/home/mireia/pharokka_db"
+
+#Options
+#at_least_one
+phages_to_analyze="61"
+#empty_if_no_reference_was_used
+#up_to_5
+phages_as_reference=""
+#Check_upload_data_from_db: https://databases.hatfull.org/Actino_Draft/fastas.zip (Example: 23-Aug-2024)
+db_data="04-Apr-2026"
+
+#conda activate phammseqs-env
+#./10B_script_phammseqs "$path_input" "$phages_to_analyze" "$phages_as_reference"
+#conda deactivate
+
+#conda activate phamclust_py311
+#./10B_script_phamclust "$path_input" "$phages_to_analyze" "$phages_as_reference"
+#conda deactivate
+
+#./script_phams_db_creation "$path_db" "$db_data" 
+
+#conda activate pharokka
+#./12_script_pharokka "$path_input" "$path_pharokka_db"
+#conda deactivate
+
+#./11_script_phams_db_correspondence "$path_input" "$path_db" "$db_data"
+
+#./13_script_join "$path_input" "$phages_to_analyze" "$phages_as_reference" "$db_data"
+
+#./generate_links_for_gggenomes "$path_input" "$phages_to_analyze" "$phages_as_reference"
+
+#orden="phage1 phage8 phage10 phage12 phage16 phage19 phage21 phage24 phage30"
+#output_name="cluster1"
+#size1="1000"
+#size2="200"
+
+#./generate_gggenomes_fig "$path_input" "$orden" "$output_name" "$size1" "$size2"
