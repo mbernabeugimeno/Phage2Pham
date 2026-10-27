@@ -1,0 +1,29 @@
+
+cd "$1"/phammseqs_all_protein_to_analyze
+
+awk -F',' '{printf "%s",$1; for(i=2;i<=NF;i++) if($i~"geneCall") printf "\t%s",$i; printf "\n"}' gene_presence_absence.csv | awk '$0~/pham/{print $0}' > correspondence_aux.csv
+
+Rscript /home/mireia/Escritorio/pipeline_paper/join_info.R "$1"/phammseqs_all_protein_to_analyze/correspondence_aux.csv "$1"/phammseqs_all_protein_to_analyze/pham_fastas/fast_correspondence_db_"$4".csv "$1"/phammseqs_all_protein_to_analyze/pham_fastas/fast_correspondence_pharokka.csv "$1"/phammseqs_all_protein_to_analyze
+
+#edit
+sed -i 's/"//g' "$1"/phammseqs_all_protein_to_analyze/correspondence_aux2.csv
+
+for ((f=1; f<=${2}; f++)); do
+	var=phage"$f""_"
+	awk -F "\t" -v variable="$var" '$2~ variable {print $0}' "$1"/phammseqs_all_protein_to_analyze/correspondence_aux2.csv > "$1"/phammseqs_all_protein_to_analyze/"$var"aux2.csv
+	Rscript /home/mireia/Escritorio/pipeline_paper/gff_mod.R "$1"/phammseqs_all_protein_to_analyze/"$var"aux2.csv "$1"/phage"$f".gff "$1"/phage"$f"_mod.gff
+	sed -i 's/"//g' "$1"/phage"$f"_mod.gff
+	tail -n +2 "$1"/phage"$f"_mod.gff > "$1"/phage"$f"_mod2.gff
+	#rm "$1"/phammseqs_all_protein_to_analyze/"$var"aux2.csv
+	#rm "$1"/phage"$f"_mod.gff
+done
+
+#for ((f=1; f<=${3}; f++)); do
+#	var=reference"$f""_"
+#	awk -F "\t" -v variable="$var" '$2~ variable {print $0}' "$1"/phammseqs_all_protein_to_analyze/correspondence_aux2.csv > "$1"/phammseqs_all_protein_to_analyze/"$var"aux2.csv
+#	Rscript /home/mireia/Escritorio/pipeline_paper/gff_mod.R "$1"/phammseqs_all_protein_to_analyze/"$var"aux2.csv "$1"/reference"$f".gff "$1"/reference"$f"_mod.gff
+#	sed -i 's/"//g' "$1"/reference"$f"_mod.gff
+#	tail -n +2 "$1"/reference"$f"_mod.gff > "$1"/reference"$f"_mod2.gff
+#	#rm "$1"/phammseqs_all_protein_to_analyze/"$var"aux2.csv
+#	#rm "$1"/reference"$f"_mod.gff
+#done
